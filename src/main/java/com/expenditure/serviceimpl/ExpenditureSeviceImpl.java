@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -45,25 +46,8 @@ public class ExpenditureSeviceImpl implements ExpenditureSevice {
 		expenses.setCreatedBy(userName);
 		expenses.setExpenseId(UUID.randomUUID().toString());
 		inMemory.add(expenses);
-		YearMonth ym = YearMonth.now();
-		Optional<SavingTo> ispreserntCheck = test.getSavings().stream().filter(
-				x -> x.getYearMonth().getMonth().equals(ym.getMonth()) && (x.getYearMonth().getYear() == ym.getYear()))
-				.findAny();
-		if (ispreserntCheck.isPresent()) {
-			System.out.println("Inside");
-			ispreserntCheck.get().setToatalSavingAmount(
-					ispreserntCheck.get().getToatalSavingAmount().subtract(expenses.getExpensedAmount()));
-
-			System.out.println(
-					"Inside" + ispreserntCheck.get().getToatalSavingAmount().subtract(expenses.getExpensedAmount()));
-		} else {
-
-			test.getSavings().add(new SavingTo(ym, test.getTotalSalary()));
-		}
-
-		test.getSavings().forEach(x -> {
-			System.out.println(">>>>>>>" + x.getToatalSavingAmount() + "  " + ">>>>>>>>>>>>>>>>>>" + x.getYearMonth());
-		});
+		this.checkIfExpensePresent(null, test);
+		this.addExpense(this.checkIfExpensePresent(null, test), expenses, null, test);
 		return expenses;
 	}
 
@@ -83,6 +67,58 @@ public class ExpenditureSeviceImpl implements ExpenditureSevice {
 			return expense.get();
 		} else {
 			throw new ExpenseNotFound(ExceptionMessage.EXPENSE_NOT_FOUND);
+		}
+
+	}
+
+	@Override
+	public Expenses update(Expenses expenses) throws ExpenseNotFound {
+
+		Optional<Expenses> expenseOptional = inMemory.stream()
+				.filter(x -> x.getExpenseId().equals(expenses.getExpenseId())).findFirst();
+
+		if (expenseOptional.isPresent()) {
+
+			if (!expenseOptional.get().getExpensedAmount().equals(expenses.getExpensedAmount())) {
+
+				this.addExpense(this.checkIfExpensePresent(expenses.getCreatedOn(), test), expenses,
+						expenseOptional.get(), test);
+
+			}
+
+			return expenses;
+		} else {
+			throw new ExpenseNotFound(ExceptionMessage.EXPENSE_NOT_FOUND);
+		}
+	}
+
+	private Optional<SavingTo> checkIfExpensePresent(Date date, UserTo user) {
+		YearMonth ym;
+		if (date == null)
+			ym = YearMonth.now();
+		else
+			ym = YearMonth.of(date.getDay(), date.getMonth());
+
+		return user.getSavings().stream().filter(
+				x -> x.getYearMonth().getMonth().equals(ym.getMonth()) && (x.getYearMonth().getYear() == ym.getYear()))
+				.findAny();
+
+	}
+
+	private void addExpense(Optional<SavingTo> ispreserntCheck, Expenses expenses, Expenses oldExpenses, UserTo user) {
+
+		if (ispreserntCheck.isPresent()) {
+			if (oldExpenses == null) {
+				ispreserntCheck.get().setToatalSavingAmount(
+						ispreserntCheck.get().getToatalSavingAmount().subtract(expenses.getExpensedAmount()));
+			} else {
+				ispreserntCheck.get().setToatalSavingAmount(ispreserntCheck.get().getToatalSavingAmount()
+						.subtract(expenses.getExpensedAmount().add(oldExpenses.getExpensedAmount())));
+			}
+
+		} else {
+			YearMonth ym = YearMonth.now();
+			user.getSavings().add(new SavingTo(ym, user.getTotalSalary()));
 		}
 
 	}

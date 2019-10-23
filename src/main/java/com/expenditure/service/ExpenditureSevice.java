@@ -11,5 +11,6 @@ public interface ExpenditureSevice {
 	Expenses create(Expenses expenses);
 	List<Expenses> getAllExpenses();
 	Expenses getExpense(String expenseId) throws ExpenseNotFound;
+	Expenses update(Expenses expenses) throws ExpenseNotFound;
 
 }

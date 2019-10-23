@@ -18,6 +18,9 @@ import com.expenditure.service.ExpenditureSevice;
 @RestController
 public class ExpenditureController {
 
+	private final static String UPDATE_EXPENSE="/updateExpense";
+	
+	
 	@Autowired
 	private ExpenditureMapper expenditureMapper;
 
@@ -44,4 +47,13 @@ public class ExpenditureController {
 				.expensesToExpensesTo(expenditureSevice.getExpense(expenseId));
 
 	}
+	
+	
+	@PostMapping(UPDATE_EXPENSE)
+	private ExpensesTo udapteExpenses(@RequestBody ExpensesTo expensesTo) {
+		return expenditureMapper
+				.expensesToExpensesTo(expenditureSevice.create(expenditureMapper.expensesToToExpenses(expensesTo)));
+
+	}
+
 }
