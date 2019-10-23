@@ -16,6 +16,7 @@ import com.expenditure.commons.enums.ExpenseType;
 public class Expenses {
 
 	private String expenseId;
+	private String userId;
 	private Date expensedOn;
 	private Date CreatedOn;
 	private Date modifiedon;
@@ -34,6 +35,19 @@ public class Expenses {
 	 */
 	public void setExpenseId(String expenseId) {
 		this.expenseId = expenseId;
+	}
+	
+	/**
+	 * @return the userId
+	 */
+	public String getUserId() {
+		return userId;
+	}
+	/**
+	 * @param userId the userId to set
+	 */
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 	/**
 	 * @return the expensedOn
